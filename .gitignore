@@ -1,0 +1,22 @@
+# Ignore build files
+
+/.settings/
+/.vscode/
+/build/
+
+/lib/LoRaMac-node
+/src/Debug
+
+*cmake_install.cmake
+*CMakeCache.txt
+*Makefile
+*CMakeFiles
+*CMakePresets.json
+*compile_commands.json
+*.ld
+*.o
+*.d
+*.map
+*.elf
+*.log
+*.launch
