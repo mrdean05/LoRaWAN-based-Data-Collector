@@ -7,7 +7,7 @@
 #include "rtc-board.h"
 #include "sx126x-board.h"
 
-#include "../../../lib/LoRaMac-node/src/apps/LoRaMac/fuota-test-01/firmwareVersion.h"
+#include "../../../lib/LoRaMac/LoRaMac-node/src/apps/LoRaMac/fuota-test-01/firmwareVersion.h"
 #include "Commissioning.h"
 #include "RegionCommon.h"
 #include "LmHandler.h"

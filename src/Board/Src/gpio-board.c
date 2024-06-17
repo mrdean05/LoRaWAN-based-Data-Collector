@@ -16,8 +16,6 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
     
     obj->pin = pin;
     
-    // printf("GPIO Init: ");
-    
     if (obj->pin == NC) return;
 
     GPIO_InitTypeDef GPIO_ConfigStruct;
@@ -53,7 +51,6 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
         }
     }
 
-    // printf("Passed In: %d | ", pin);
     obj->pinIndex = GpioPinIndex(pin);
     obj->pull = type;
 
@@ -79,7 +76,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 
     HAL_GPIO_Init(obj->port, &GPIO_ConfigStruct);
 
-    if (mode == PIN_OUTPUT) HAL_GPIO_WritePin(obj->port, obj->pinIndex, value);
+    if ((mode == PIN_OUTPUT) && ((value == 0) || (value == 1))) HAL_GPIO_WritePin(obj->port, obj->pinIndex, value);
 
     // printf("Pin - %d PinIndex - %lu Mode - %d \r\n", obj->pin, GPIO_ConfigStruct.Pin, mode);
     

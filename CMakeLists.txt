@@ -41,7 +41,7 @@ add_executable(${CMAKE_PROJECT_NAME})
 add_subdirectory(cmake/stm32cubemx)
 
 # Add LoRaMac-Node
-add_subdirectory(lib)
+add_subdirectory(lib/LoRaMac)
 
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
@@ -59,6 +59,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     src/Board/Src/spi-board.c
     src/Board/Src/sx1262-board.c
     src/Board/Src/lorawan.c
+    src/Board/Src/dht.c
 )
 
 # Add include paths

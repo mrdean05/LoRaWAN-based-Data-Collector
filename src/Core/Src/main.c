@@ -22,6 +22,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdbool.h>
 #include <string.h>
 
 #include "board.h"
@@ -29,6 +30,11 @@
 #include "delay-board.h"
 #include "rtc-board.h"
 #include "lorawan.h"
+
+#include "dht.h"
+
+static void lora_task(void *pvParameters);
+static void test_dht11 ( void );
 
 // OTAA settings
 const struct lorawan_otaa_settings otaa_settings = {
@@ -46,36 +52,59 @@ uint8_t receive_port = 0;
 int main(void)
 {
     BoardInitMcu();
+    //test_dht11 ();
+    //test_timer();
+    printf("Task About to start\r\n");
+}
 
+static void test_dht11 ( void )
+{
+    if (DHT_Init() == false)
+    {
+        printf("Failed to initialize DHT 11\n");
+        return;
+    }
+    printf("Done initialization\n");
+
+    while(1){
+        if (DHT_ProcessValues() == false)
+        {
+            printf("Failed to process data from DHT 11\n");
+            return;
+        }
+
+        printf("The temperature value is %d\n", DHT_GetTempValue());
+        printf("The humidity value is %d\n", DHT_GetHumValue());
+
+        HAL_Delay(5000);
+    }
     
+}
+
+static void lora_task(void *pvParameters){
+
     printf("LoRaWAN - Hello OTAA\n");
 
     printf("Initializing LoRaWAN....\n");
 
     if (lorawan_init_otaa(LORAWAN_REGION, &otaa_settings) < 0) {
         printf("failed!!!\n");
-        return 0;
+        return ;
     } else {
         printf("success!!!!\n");
     }
     
-
     //Start the join process and wait
     printf("Joining the LoRaWAN network\n");
     lorawan_join();
 
     printf("Waiting to Join\n");
 
-    while (!lorawan_is_joined())
-    {
-        lorawan_process();
-        //printf("Delay\n");
-        //usleep(100 * 1000);
-
-    }
+    while (!lorawan_is_joined())  lorawan_process();
 
     uint32_t timeNowTicks = RtcGetTimerValue();
     uint32_t timeoutTicks = RtcMs2Tick(5000);
+
     while (1)
     {
         // let the lorwan library process pending events
@@ -91,7 +120,6 @@ int main(void)
             } else {
                 printf("success!\n");
             }
-
             timeNowTicks = RtcGetTimerValue();
         }
 

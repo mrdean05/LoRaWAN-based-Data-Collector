@@ -4,7 +4,8 @@
 /.vscode/
 /build/
 
-/lib/LoRaMac-node
+/lib/LoraMac/LoRaMac-node
+/lib/RTOS/FreeRTOS-Kernel
 /src/Debug
 
 *cmake_install.cmake
