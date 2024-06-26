@@ -48,7 +48,7 @@ RTC_TimeTypeDef RTC_TimeContext;
 RTC_DateTypeDef RTC_DateContext;
 uint64_t TimeTicks = 0;
 
-#define DEBUG_RTC
+// #define DEBUG_RTC
 
 uint64_t RtcGetDateTime(RTC_DateTypeDef *date, RTC_TimeTypeDef *time);
 
@@ -89,8 +89,8 @@ void RtcInit( void ){
     RTC_HandleStruct.Init.OutPut = RTC_OUTPUT_DISABLE;
     RTC_HandleStruct.Init.OutPutPolarity = RTC_OUTPUT_POLARITY_HIGH;
     RTC_HandleStruct.Init.OutPutType = RTC_OUTPUT_TYPE_OPENDRAIN;
-    RTC_HandleStruct.Lock = HAL_UNLOCKED;
-    RTC_HandleStruct.State = HAL_RTC_STATE_RESET;
+    // RTC_HandleStruct.Lock = HAL_UNLOCKED;
+    // RTC_HandleStruct.State = HAL_RTC_STATE_RESET;
 
     if ( HAL_RTC_Init(&RTC_HandleStruct) != HAL_OK ) printf("Error Initializing the RTC\n");
     
@@ -114,8 +114,6 @@ void RtcInit( void ){
     RTC_DateStruct.Year = 0;
     if ( HAL_RTC_SetDate(&RTC_HandleStruct, &RTC_DateStruct, RTC_FORMAT_BIN) != HAL_OK) printf("Error Setting up RTC Date \n");
     
-    
-
     HAL_RTCEx_EnableBypassShadow(&RTC_HandleStruct);
 
     HAL_NVIC_SetPriority(RTC_Alarm_IRQn, 3, 0);

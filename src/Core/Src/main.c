@@ -33,7 +33,7 @@
 
 #include "dht.h"
 
-static void lora_task(void *pvParameters);
+static void lora_task( void );
 static void test_dht11 ( void );
 
 // OTAA settings
@@ -55,6 +55,7 @@ int main(void)
     //test_dht11 ();
     //test_timer();
     printf("Task About to start\r\n");
+    lora_task();
 }
 
 static void test_dht11 ( void )
@@ -81,8 +82,8 @@ static void test_dht11 ( void )
     
 }
 
-static void lora_task(void *pvParameters){
-
+static void lora_task( void )
+{
     printf("LoRaWAN - Hello OTAA\n");
 
     printf("Initializing LoRaWAN....\n");
@@ -100,7 +101,10 @@ static void lora_task(void *pvParameters){
 
     printf("Waiting to Join\n");
 
-    while (!lorawan_is_joined())  lorawan_process();
+    while (!lorawan_is_joined())  
+    {
+        lorawan_process();
+    }
 
     uint32_t timeNowTicks = RtcGetTimerValue();
     uint32_t timeoutTicks = RtcMs2Tick(5000);
