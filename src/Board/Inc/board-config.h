@@ -19,4 +19,7 @@
 /* DHT Pin */
 #define DHT_11_PIN       PB_3
 
+/* ADC Pin */
+#define ADC_PIN          PA_3
+
 #endif

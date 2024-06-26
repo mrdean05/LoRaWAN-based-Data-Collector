@@ -25,7 +25,10 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include "adc.h"
+#include "adc-board.h"
 #include "board.h"
+#include "board-config.h"
 #include "config.h"
 #include "delay-board.h"
 #include "rtc-board.h"
@@ -35,6 +38,7 @@
 
 static void lora_task( void );
 static void test_dht11 ( void );
+static void StartSensorReading( void );
 
 // OTAA settings
 const struct lorawan_otaa_settings otaa_settings = {
@@ -54,8 +58,8 @@ int main(void)
     BoardInitMcu();
     //test_dht11 ();
     //test_timer();
-    printf("Task About to start\r\n");
-    lora_task();
+    //lora_task();
+    StartSensorReading();
 }
 
 static void test_dht11 ( void )
@@ -143,7 +147,7 @@ static void lora_task( void )
 
 Adc_t adc_obj;
 
-void StartSensorReading(void *argument){
+void StartSensorReading(void){
     
     AdcMcuInit(&adc_obj, ADC_PIN);
     AdcMcuConfig();
@@ -154,6 +158,7 @@ void StartSensorReading(void *argument){
     {   
         value = AdcMcuReadChannel(&adc_obj, 3);
         printf("The value of ADC: %ld\n", value);
+        HAL_Delay(3000);
     }
 }
 
