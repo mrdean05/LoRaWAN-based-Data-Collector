@@ -51,6 +51,7 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    src/Board/Src/adc-board.c
     src/Board/Src/board.c
     src/Board/Src/delay-board.c
     src/Board/Src/gpio-board.c

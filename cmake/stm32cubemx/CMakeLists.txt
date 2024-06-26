@@ -23,6 +23,9 @@ target_include_directories(stm32cubemx INTERFACE
 target_sources(stm32cubemx INTERFACE
     ../../src/Core/Src/main.c
     ../../src/Core/Src/stm32f4xx_it.c
+    ../../src/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c
+    ../../src/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c
+    ../../src/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_adc.c
     ../../src/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c
     ../../src/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c
     ../../src/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c

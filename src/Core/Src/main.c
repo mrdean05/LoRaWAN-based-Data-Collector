@@ -140,6 +140,23 @@ static void lora_task( void )
     }
 }
 
+
+Adc_t adc_obj;
+
+void StartSensorReading(void *argument){
+    
+    AdcMcuInit(&adc_obj, ADC_PIN);
+    AdcMcuConfig();
+
+    uint32_t value = 0;
+
+    while (1)
+    {   
+        value = AdcMcuReadChannel(&adc_obj, 3);
+        printf("The value of ADC: %ld\n", value);
+    }
+}
+
 /* 
 int main(void)
 {
