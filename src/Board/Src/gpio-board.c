@@ -13,7 +13,6 @@ static Gpio_t *GpioIrq[16];
 
 /* Initializes the given GPIO */
 void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value ){
-    
     obj->pin = pin;
     
     if (obj->pin == NC) return;
@@ -56,7 +55,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 
     GPIO_ConfigStruct.Pin = obj->pinIndex;
     GPIO_ConfigStruct.Pull = obj->pull;
-    GPIO_ConfigStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    
 
     if (mode == PIN_INPUT) GPIO_ConfigStruct.Mode = GPIO_MODE_INPUT;    
     else if (mode == PIN_OUTPUT) {
@@ -69,32 +68,32 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
         GPIO_ConfigStruct.Alternate = value; 
     }
 
+    else if (mode == PIN_ANALOGIC){
+        GPIO_ConfigStruct.Mode = GPIO_MODE_ANALOG;
+        HAL_GPIO_Init(obj->port, &GPIO_ConfigStruct);
+        return;
+    }
+
     else {
         if (config == PIN_PUSH_PULL) GPIO_ConfigStruct.Mode = GPIO_MODE_OUTPUT_PP;
         else { GPIO_ConfigStruct.Mode = GPIO_MODE_OUTPUT_OD; }        
     }
 
+    GPIO_ConfigStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+
     HAL_GPIO_Init(obj->port, &GPIO_ConfigStruct);
 
-    if ((mode == PIN_OUTPUT) && ((value == 0) || (value == 1))) HAL_GPIO_WritePin(obj->port, obj->pinIndex, value);
-
-    // printf("Pin - %d PinIndex - %lu Mode - %d \r\n", obj->pin, GPIO_ConfigStruct.Pin, mode);
-    
+    if ((mode == PIN_OUTPUT) && ((value == 0) || (value == 1))) HAL_GPIO_WritePin(obj->port, obj->pinIndex, value);   
 }
 
 /* Sets a user defined object pointer */
 void GpioMcuSetContext( Gpio_t *obj, void* context ){
-    
-    //printf("GPIO GpioMcuSetContext\r\n");
-    
     obj->Context = context;
 }
 
 /* GPIO IRQ Initialization */
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler ){
-    
-    
-    
+
     if (obj->pin == NC) return;
 
     if (irqHandler == NULL) return;
@@ -179,14 +178,10 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
         GpioIrq[( obj->pin & 0x0F)] = obj;
         printf("GPIO GpioMcuSetInterrupt successful priority: %ld\r\n", priority);
     }
-
 }
 
 /* Removes the interrupt from the object */
 void GpioMcuRemoveInterrupt( Gpio_t *obj ){
-    
-    //printf("GPIO GpioMcuRemoveInterrupt\r\n");
-    
     if(obj->pin > IOE_0) return;
     obj->IrqHandler = NULL;
     GPIO_InitTypeDef GPIO_ConfigStruct = {0};
@@ -197,32 +192,21 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj ){
 
 /* Writes the given value to the GPIO output. */
 void GpioMcuWrite( Gpio_t *obj, uint32_t value ){
-    
-    //printf("GPIO GpioMcuWrite: %lu\r\n", value);
-    
     HAL_GPIO_WritePin(obj->port, obj->pinIndex, value);
 }
 
 /* Toggle the value to the GPIO output */
 void GpioMcuToggle( Gpio_t *obj ){
-    
-    //printf("GPIO GpioMcuToggle\r\n");
-    
     HAL_GPIO_TogglePin (obj->port, obj->pinIndex);
 }
 
 /* Reads the current GPIO input value */
 uint32_t GpioMcuRead( Gpio_t *obj ){
-    
-    //printf("GPIO GpioMcuRead\r\n");
-    
     return (uint32_t)HAL_GPIO_ReadPin(obj->port, obj->pinIndex);
 }
 
 static uint16_t GpioPinIndex (PinNames pin){
-    
     uint16_t pinIndex = (pin & 0x0F);
-    // printf("After passed in: %u | ", (1 << pinIndex));
     return (1 << pinIndex);
 }
 

@@ -1,0 +1,3 @@
+[submodule "lib/LoRaMac"]
+    path = lib/LoRaMac
+    url = https://github.com/Lora-net/LoRaMac-node.git

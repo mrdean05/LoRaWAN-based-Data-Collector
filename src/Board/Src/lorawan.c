@@ -176,12 +176,7 @@ const char* lorawan_default_dev_eui(char* dev_eui)
 
 int lorawan_init(LoRaMacRegion_t region)
 {
-    //EEPROM was initialized here
-   // EepromMcuInit();
-
-    printf("Intializing RTC\r\n");
     RtcInit();
-    //initial the sx1262
    
     const struct lorawan_sx126x_settings sx126x_settings = {
         .spi = {
@@ -201,10 +196,6 @@ int lorawan_init(LoRaMacRegion_t region)
         NC
     );
 
-    //Excluded some gpio definitions
-
-    printf("Intializing SPI GPIOs \r\n");
-
     SX126xIoInit();
 
     SX126xIoDbgInit();
@@ -215,8 +206,6 @@ int lorawan_init(LoRaMacRegion_t region)
     {
         return -1;
     }
-
-    printf("Lm Handler Init \r\n");
 
     // Set system maximum tolerated rx error in milliseconds
     LmHandlerSetSystemMaxRxError( 20 );

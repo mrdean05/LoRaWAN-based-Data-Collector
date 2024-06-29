@@ -6,13 +6,7 @@
 
 
 LmnStatus_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size ){
-    
-    //printf("EEPROM EepromMcuWriteBuffer\r\n");
-    
-    
-    
-    // if ((FLASH_BASE + addr + size) >= FLASH_END) return LMN_STATUS_ERROR;
-    
+  
     if ((FLASH_BASE + addr) >= FLASH_END) return LMN_STATUS_ERROR;
     if (HAL_FLASH_Unlock() == HAL_OK){
         for (int i = 0; i < size; i++){
@@ -26,8 +20,6 @@ LmnStatus_t EepromMcuWriteBuffer( uint16_t addr, uint8_t *buffer, uint16_t size 
 
 
 LmnStatus_t EepromMcuReadBuffer( uint16_t addr, uint8_t *buffer, uint16_t size ){
-    
-    //printf("EEPROM EepromMcuReadBuffer\r\n");
     
     if ((FLASH_BASE + addr + size) >= FLASH_END) return LMN_STATUS_ERROR;
     for (int i = 0; i < size; i++){

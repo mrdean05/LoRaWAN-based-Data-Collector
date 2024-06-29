@@ -60,13 +60,18 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     src/Board/Src/spi-board.c
     src/Board/Src/sx1262-board.c
     src/Board/Src/lorawan.c
+    src/Board/Src/lpm-board.c
     src/Board/Src/dht.c
+    src/Board/Src/watchdog.c
+
+    lib/cJSON/cJSON.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     src/Board/Inc
+    lib/cJSON
 )
 
 # Add project symbols (macros)

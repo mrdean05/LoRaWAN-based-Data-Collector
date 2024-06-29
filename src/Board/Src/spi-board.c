@@ -94,7 +94,6 @@ void SpiFrequency( Spi_t *obj, uint32_t hz ){
 }
 */
 
-
 uint16_t SpiInOut( Spi_t *obj, uint16_t outData ){
     uint16_t recvData;
 
@@ -108,27 +107,4 @@ uint16_t SpiInOut( Spi_t *obj, uint16_t outData ){
 
     return recvData;
 }
-
-/*
-uint16_t SpiInOut( Spi_t *obj, uint16_t outData ){
-    uint16_t recvData;
-
-    uint16_t recvOutData = outData;
-    // while(__HAL_SPI_GET_FLAG(&hspi, SPI_FLAG_TXE) == RESET){printf("waiting");};
-    // hspi.Instance->DR = (uint32_t)(outData & 0xFF);
-    HAL_SPI_Transmit(&hspi, &recvOutData, sizeof(recvOutData), HAL_MAX_DELAY);
-    printf("Data out: %d\r\n", outData);
-    
-    // while(__HAL_SPI_GET_FLAG(&hspi, SPI_FLAG_RXNE) == RESET){
-        // printf("Waiting\r\n"); 
-    //    };
-    // recvData = hspi.Instance->DR;
-
-    HAL_SPI_Receive(&hspi, &recvData, sizeof(recvData), HAL_MAX_DELAY);
-    printf("Data in: %d\r\n", recvData);
-
-    return recvData;
-}
-
-*/
 

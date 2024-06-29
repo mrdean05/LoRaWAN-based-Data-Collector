@@ -17,7 +17,6 @@ void AdcMcuInit( Adc_t *obj, PinNames adcInput ){
 /* Initializes the ADC internal parameters */
 void AdcMcuConfig( void )
 {
-
     __HAL_RCC_ADC1_CLK_ENABLE();
 
     hadc1.Instance                      = ADC1;
@@ -52,7 +51,6 @@ void AdcMcuConfig( void )
 
 /* Reads the value of the given channel */
 uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel ){
-
     uint32_t adcValue = 0;
     
     HAL_ADC_Start(&hadc1);

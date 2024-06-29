@@ -126,11 +126,7 @@ static void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLN = 84;
     RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = 4;
-    if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
-    {
-    Error_Handler();
-    }
-
+    HAL_RCC_OscConfig(&RCC_OscInitStruct);
     /** Initializes the CPU, AHB and APB buses clocks
      */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -139,11 +135,7 @@ static void SystemClock_Config(void)
     RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
-
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-    {
-    Error_Handler();
-    }
+    HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2);
 
     PeriphClkStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
     PeriphClkStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
@@ -151,31 +143,15 @@ static void SystemClock_Config(void)
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkStruct);
 }
 
-static void MX_USART1_UART_Init(void)
+static void MX_USART1_UART_Init( void )
 {
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
-
-    /*
-    RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
-
-
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_UART1;
-    PeriphClkInit.uart1ClockSelection = RCC_UART1CLKSOURCE_PCLK1;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
-    {
-    Error_Handler();
-    }
-    */
 
     /* Peripheral clock enable */
     __HAL_RCC_USART1_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
-    /**UART1 GPIO Configuration
-    PB6     ------> USART1_TX
-    PB7     ------> USART1_RX
-    */
     GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -183,13 +159,6 @@ static void MX_USART1_UART_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF7_USART1;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /* USER CODE BEGIN UART1_Init 0 */
-
-    /* USER CODE END UART1_Init 0 */
-
-    /* USER CODE BEGIN UART1_Init 1 */
-
-    /* USER CODE END UART1_Init 1 */
     huart1.Instance = USART1;
     huart1.Init.BaudRate = 115200;
     huart1.Init.WordLength = UART_WORDLENGTH_8B;
@@ -198,57 +167,16 @@ static void MX_USART1_UART_Init(void)
     huart1.Init.Mode = UART_MODE_TX_RX;
     huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
     huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-    if (HAL_UART_Init(&huart1) != HAL_OK)
-    {
-    Error_Handler();
-    }
-    /* USER CODE BEGIN UART1_Init 2 */
-
-    /* USER CODE END UART1_Init 2 */
-
+    HAL_UART_Init(&huart1);
 }
 
-/**
-* @brief UART MSP De-Initialization
-* This function freeze the hardware resources used in this example
-* @param huart: UART handle pointer
-* @retval None
-*/
-void HAL_UART_MspDeInit(UART_HandleTypeDef* huart)
+void HAL_UART_MspDeInit( UART_HandleTypeDef* huart )
 {
   if(huart->Instance==USART1)
   {
-  /* USER CODE BEGIN UART1_MspDeInit 0 */
-
-  /* USER CODE END UART1_MspDeInit 0 */
-    /* Peripheral clock disable */
     __HAL_RCC_USART1_CLK_DISABLE();
-
-    /**UART1 GPIO Configuration
-    PB6     ------> USART1_TX
-    PB7     ------> USART1_RX
-    */
     HAL_GPIO_DeInit(GPIOB, GPIO_PIN_6|GPIO_PIN_7);
-
-  /* USER CODE BEGIN UART1_MspDeInit 1 */
-
-  /* USER CODE END UART1_MspDeInit 1 */
   }
-
 }
 
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
-    /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state */
-    __disable_irq();
-    while (1)
-    {
-    }
-    /* USER CODE END Error_Handler_Debug */
-}
 
