@@ -22,7 +22,7 @@ The technical specifications are below:
 Refer to (../src/Board/Inc/board-config.h) for pin to sensor connection.
 
 ##  Firmware Architecture and Design
-![file](images/design.png)
+![file](image/design.png)
 
 ##  Get Started
 - Clone the public repository
