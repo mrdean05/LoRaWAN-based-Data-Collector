@@ -14,10 +14,10 @@ The [Porting Guide](https://stackforce.github.io/LoRaMac-doc/LoRaMac-doc-v4.7.0/
 
 ## Technical Specification
 The technical specifications are below:
-    - MCU - stm32f401ccu6
-    - Temperature and Humidity: DHT 11
-    - LoRa module: SX1262 LoRa Node Module
-    - Photo Sensor: TEMT6000
+* MCU - stm32f401ccu6
+* Temperature and Humidity: DHT 11
+* LoRa module: SX1262 LoRa Node Module
+* Photo Sensor: TEMT6000
 
 Refer to (../src/Board/Inc/board-config.h) for pin to sensor connection.
 
