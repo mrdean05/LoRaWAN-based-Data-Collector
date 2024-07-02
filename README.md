@@ -1,5 +1,5 @@
 <h2> LoRaWAN-based Weather Data Collection System <h2>
-Refer to the Notion [link](https://periwinkle-traffic-2ca.notion.site/LoRaWAN-based-Weather-Data-Collection-System-0f2b02b3bb934b1d8de3828fd8ccf65a?pvs=4) for detailed documentation of project.
+Refer to the Notion ([link](https://periwinkle-traffic-2ca.notion.site/LoRaWAN-based-Weather-Data-Collection-System-0f2b02b3bb934b1d8de3828fd8ccf65a?pvs=4)) for detailed documentation of project.
 
 ## Introduction
 
