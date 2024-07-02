@@ -23,9 +23,9 @@
 
 #include "cJSON.h"
 #include "dht.h"
+#include "temt.h"
 #include "watchdog.h"
 
-Adc_t adc_obj;
 
 static bool enterSleepMode = true;
 
@@ -66,8 +66,8 @@ static void app_main( void )
     }
 
     /* Initializing light sensor attached to an adc pin */
-    AdcMcuInit(&adc_obj, ADC_PIN);
-    AdcMcuConfig();
+    Temt_Init();
+    Temt_Config();
 
     printf("Initializing LoRaWAN....\n");
 
@@ -107,7 +107,7 @@ static void app_main( void )
             }
 
             /* Read adc value */
-            sunlightLevel = AdcMcuReadChannel(&adc_obj, 3);
+            sunlightLevel = Temt_ReadData();
 
             /* Create JSON Object */
             cJSON *dataObject = cJSON_CreateObject();

@@ -12,6 +12,4 @@ bool DHT_Init( void );
 bool DHT_ProcessValues( void );
 uint8_t DHT_GetTempValue( void );
 uint8_t DHT_GetHumValue( void );
-void test_timer( void );
-
 #endif

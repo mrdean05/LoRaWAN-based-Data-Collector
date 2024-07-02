@@ -176,7 +176,6 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
         HAL_NVIC_EnableIRQ(IRQn);
 
         GpioIrq[( obj->pin & 0x0F)] = obj;
-        printf("GPIO GpioMcuSetInterrupt successful priority: %ld\r\n", priority);
     }
 }
 

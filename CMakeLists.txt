@@ -51,6 +51,8 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    lib/cJSON/cJSON.c
+    
     src/Board/Src/adc-board.c
     src/Board/Src/board.c
     src/Board/Src/delay-board.c
@@ -61,16 +63,18 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     src/Board/Src/sx1262-board.c
     src/Board/Src/lorawan.c
     src/Board/Src/lpm-board.c
-    src/Board/Src/dht.c
     src/Board/Src/watchdog.c
 
-    lib/cJSON/cJSON.c
+    src/Sensors/Src/dht.c
+    src/Sensors/Src/temt.c
+
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
     src/Board/Inc
+    src/Sensors/Inc
     lib/cJSON
 )
 
