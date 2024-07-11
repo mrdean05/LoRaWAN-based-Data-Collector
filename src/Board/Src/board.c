@@ -1,7 +1,19 @@
+/**
+ ******************************************************************************
+ * @file      board.c
+ * @author    Dean Prince Agbodjan
+ * @brief     Target board general functions implementation
+ *
+ ******************************************************************************
+ */
+
+/* Includes */
 #include "board.h"
 #include "main.h"
 
 #define BOARD_VERSION           1
+
+/* Unique Devices IDs register set */
 
 #define ID_BASE_ADDR            0x1FFF7A10
 #define ID_OFFSET_1             0x04
@@ -12,23 +24,24 @@
 #define ID_2                    ID_BASE_ADDR + ID_OFFSET_2
 
 
+/* Variables */
 UART_HandleTypeDef huart1;
-
-/* Private function prototypes -----------------------------------------------*/
 static void SystemClock_Config(void);
 static void MX_USART1_UART_Init(void);
 
+/* printf uart function */
 int _write(int file, char *ptr, int len){
 	HAL_UART_Transmit(&huart1, (uint8_t*)ptr, len, HAL_MAX_DELAY);
 	return len;
 }
 
-/* Initializes the mcu. */
+/**
+ * @brief Initializes the mcu.
+ */
 void BoardInitMcu( void ){
 
     HAL_Init();
     
-    /* */
     __HAL_RCC_SYSCFG_CLK_ENABLE();
     __HAL_RCC_PWR_CLK_ENABLE();
 
@@ -40,23 +53,34 @@ void BoardInitMcu( void ){
 
 }
 
-/* Resets MCU */
+/**
+ * @brief Resets the mcu.
+ */
 void BoardResetMcu( void ){
     /* Restart system */
     HAL_NVIC_SystemReset();
 }
 
-/* Initializes the boards peripherals. */
+/**
+ * @brief Initializes the boards peripherals.
+ */
 void BoardInitPeriph( void ){
 
 }
 
-/* Deintializes some peripherals to decrease power consumption */
+/**
+ * @brief De-initializes the target board peripherals to decrease power
+ *        consumption.
+ */
 void BoardDeInitMcu( void ){
 
 }
 
-/* Manages entry into deep-sleep mode */
+/**
+ * @brief Gets the board 64 bits unique ID
+ *
+ * @param [IN] id Pointer to an array that will contain the Unique ID
+ */
 void BoardGetUniqueId( uint8_t *id ){
     id[0] = (*(uint32_t*) ID_0 + *(uint32_t*) ID_1) >> 24; 
     id[1] = (*(uint32_t*) ID_0 + *(uint32_t*) ID_2) >> 24;
@@ -68,29 +92,43 @@ void BoardGetUniqueId( uint8_t *id ){
     id[7] = (*(uint32_t*) ID_0 + *(uint32_t*) ID_2) >> 24;
 }
 
-/* Manages entry into deep sleep */
+/**
+ * @brief Manages the entry into ARM cortex deep-sleep mode
+ */
 void BoardLowPowerHandler( void ){
 
 }
 
-/* Get board version */
+/**
+ * @brief Get the board version
+ *
+ * @retval value  Version
+ */
 Version_t BoardGetVersion( void ){
     Version_t boardVersion;
     boardVersion.Value = BOARD_VERSION;
     return boardVersion;
 }
 
-uint8_t BoardGetBatteryLevel( void )
-{
+uint8_t BoardGetBatteryLevel( void ){
     return 0; //  Battery level [0: node is connected to an external power source ...
 }
 
+/**
+ * Returns a pseudo random seed generated using the MCU Unique ID
+ *
+ * @retval seed Generated pseudo random seed
+ */
 uint32_t BoardGetRandomSeed( void )
 {
     return 0;
 }
 
-
+/**
+ * @brief Enters a critical section by disabling the interupt.
+ *
+ * @retval seed Generated pseudo random seed
+ */
 void BoardCriticalSectionBegin( uint32_t *mask ){
     /* Set the current state of interrupt from PRIMASK register */
     *mask = __get_PRIMASK();
@@ -99,10 +137,20 @@ void BoardCriticalSectionBegin( uint32_t *mask ){
     __disable_irq();
 }
 
+/**
+ * @brief Exists a critical section by enabling the interupt.
+ *
+ * @retval seed Generated pseudo random seed
+ */
 void BoardCriticalSectionEnd( uint32_t *mask ){
     __set_PRIMASK(*mask);
 }
 
+/**
+ * @brief Thins function handles clock configuration
+ *
+ * @retval seed Generated pseudo random seed
+ */
 static void SystemClock_Config(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct = {0};
@@ -143,8 +191,11 @@ static void SystemClock_Config(void)
     HAL_RCCEx_PeriphCLKConfig(&PeriphClkStruct);
 }
 
-static void MX_USART1_UART_Init( void )
-{
+/**
+ * @brief This function initializes the UART for debugging.
+ *
+ */
+static void MX_USART1_UART_Init( void ){
 
     GPIO_InitTypeDef GPIO_InitStruct = {0};
 
@@ -170,8 +221,11 @@ static void MX_USART1_UART_Init( void )
     HAL_UART_Init(&huart1);
 }
 
-void HAL_UART_MspDeInit( UART_HandleTypeDef* huart )
-{
+/**
+ * @brief This function de-initializes the UART for debugging.
+ *
+ */
+void HAL_UART_MspDeInit( UART_HandleTypeDef* huart ){
   if(huart->Instance==USART1)
   {
     __HAL_RCC_USART1_CLK_DISABLE();

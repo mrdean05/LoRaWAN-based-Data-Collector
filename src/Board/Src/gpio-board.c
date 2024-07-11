@@ -1,3 +1,13 @@
+/**
+ ******************************************************************************
+ * @file      gpio-board.c
+ * @author    Dean Prince Agbodjan
+ * @brief     Target board GPIO implementation
+ *
+ ******************************************************************************
+ */
+
+/* Includes */
 #include <stdio.h>
 #include <stdint.h>
 
@@ -8,15 +18,27 @@
 #include "stm32f4xx_hal_gpio.h"
 #include "stm32f4xx_hal_cortex.h"
 
+/* Variables */
 static uint16_t GpioPinIndex (PinNames pin);
 static Gpio_t *GpioIrq[16];
 
-/* Initializes the given GPIO */
+/**
+ * @brief Initializes the given GPIO object
+ *
+ * @param [IN] obj    Pointer to the GPIO object
+ * @param [IN] pin    Pin name ( please look in board-config.h file )
+ * @param [IN] mode   Pin mode [PIN_INPUT, PIN_OUTPUT,
+ *                              PIN_ALTERNATE_FCT, PIN_ANALOGIC]
+ * @param [IN] config Pin config [PIN_PUSH_PULL, PIN_OPEN_DRAIN]
+ * @param [IN] type   Pin type [PIN_NO_PULL, PIN_PULL_UP, PIN_PULL_DOWN]
+ * @param [IN] value  Default output value at initialization
+ */
 void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, PinTypes type, uint32_t value ){
     obj->pin = pin;
     
     if (obj->pin == NC) return;
 
+    /* GPIO Init Structure Definition */
     GPIO_InitTypeDef GPIO_ConfigStruct;
 
     if (obj->pin < IOE_0){
@@ -50,6 +72,7 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
         }
     }
 
+    /* Initialize GPIO_ConfigStruct */
     obj->pinIndex = GpioPinIndex(pin);
     obj->pull = type;
 
@@ -83,15 +106,31 @@ void GpioMcuInit( Gpio_t *obj, PinNames pin, PinModes mode, PinConfigs config, P
 
     HAL_GPIO_Init(obj->port, &GPIO_ConfigStruct);
 
+    /* Write in GPIO if mode is OUTPUT */
     if ((mode == PIN_OUTPUT) && ((value == 0) || (value == 1))) HAL_GPIO_WritePin(obj->port, obj->pinIndex, value);   
 }
 
-/* Sets a user defined object pointer */
+/**
+ * @brief Sets a user defined object pointer
+ *
+ * @param [IN] context User defined data object pointer to pass back
+ *                     on IRQ handler callback
+ */
 void GpioMcuSetContext( Gpio_t *obj, void* context ){
     obj->Context = context;
 }
 
-/* GPIO IRQ Initialization */
+/**
+ * @brief GPIO IRQ Initialization
+ *
+ * @param [IN] obj         Pointer to the GPIO object
+ * @param [IN] irqMode     IRQ mode [NO_IRQ, IRQ_RISING_EDGE,
+ *                                   IRQ_FALLING_EDGE, IRQ_RISING_FALLING_EDGE]
+ * @param [IN] irqPriority IRQ priority [IRQ_VERY_LOW_PRIORITY, IRQ_LOW_PRIORITY
+ *                                       IRQ_MEDIUM_PRIORITY, IRQ_HIGH_PRIORITY
+ *                                       IRQ_VERY_HIGH_PRIORITY]
+ * @param [IN] irqHandler  Callback function pointer
+ */
 void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriority, GpioIrqHandler *irqHandler ){
 
     if (obj->pin == NC) return;
@@ -105,6 +144,7 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
 
         GPIO_ConfigStruct.Pin = obj->pinIndex;
 
+        /* Setting IRQ Mode */
         if (irqMode == IRQ_RISING_EDGE){
             GPIO_ConfigStruct.Mode = GPIO_MODE_IT_RISING;
         }
@@ -179,7 +219,11 @@ void GpioMcuSetInterrupt( Gpio_t *obj, IrqModes irqMode, IrqPriorities irqPriori
     }
 }
 
-/* Removes the interrupt from the object */
+/**
+ * @brief Removes the interrupt from the object
+ *
+ * @param [IN] obj Pointer to the GPIO object
+ */
 void GpioMcuRemoveInterrupt( Gpio_t *obj ){
     if(obj->pin > IOE_0) return;
     obj->IrqHandler = NULL;
@@ -189,26 +233,52 @@ void GpioMcuRemoveInterrupt( Gpio_t *obj ){
     HAL_GPIO_Init(obj->port, &GPIO_ConfigStruct);
 }
 
-/* Writes the given value to the GPIO output. */
+/**
+ * @brief Writes the given value to the GPIO output
+ *
+ * @param [IN] obj   Pointer to the GPIO object
+ * @param [IN] value New GPIO output value
+ */
 void GpioMcuWrite( Gpio_t *obj, uint32_t value ){
     HAL_GPIO_WritePin(obj->port, obj->pinIndex, value);
 }
 
-/* Toggle the value to the GPIO output */
+/**
+ * @brief Toggle the value to the GPIO output
+ *
+ * @param [IN] obj   Pointer to the GPIO object
+ */
 void GpioMcuToggle( Gpio_t *obj ){
     HAL_GPIO_TogglePin (obj->port, obj->pinIndex);
 }
 
-/* Reads the current GPIO input value */
+/**
+ * @brief Reads the current GPIO input value
+ *
+ * @param [IN] obj Pointer to the GPIO object
+ * @return value   Current GPIO input value
+ */
 uint32_t GpioMcuRead( Gpio_t *obj ){
     return (uint32_t)HAL_GPIO_ReadPin(obj->port, obj->pinIndex);
 }
 
+/**
+ * @brief Define the pin index
+ *
+ * @param [IN] pin    Pin name ( please look in board-config.h file )
+ * @return value  pin number
+ */
 static uint16_t GpioPinIndex (PinNames pin){
     uint16_t pinIndex = (pin & 0x0F);
     return (1 << pinIndex);
 }
 
+/**
+ * @brief Define IRQ handler for EXTI0 - EXTI15
+ *
+ * @param [IN] pin    Pin name ( please look in board-config.h file )
+ * @return value  pin number
+ */
 void EXTI0_IRQHandler(void) {
     HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
@@ -247,15 +317,12 @@ void EXTI15_10_IRQHandler(void) {
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-
     int calback_index;
     while (GPIO_Pin != 0x00){
         GPIO_Pin = GPIO_Pin >> 1;
         calback_index++;
     }
-
     if ((GpioIrq[calback_index] != NULL)&&(GpioIrq[calback_index]->IrqHandler != NULL)){
         GpioIrq[calback_index]->IrqHandler(GpioIrq[calback_index]->Context);
     }
-
 }

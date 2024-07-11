@@ -1,3 +1,13 @@
+/**
+ ******************************************************************************
+ * @file      adc-board.c
+ * @author    Dean Prince Agbodjan
+ * @brief     Target board ADC driver implementation
+ *
+ ******************************************************************************
+ */
+
+/* Includes */
 #include <stdio.h>
 #include <stdint.h>
 
@@ -7,14 +17,22 @@
 #include "stm32f4xx_hal.h"
 #include "stm32f4xx_hal_adc.h"
 
+/* ADC Handler definition */
 ADC_HandleTypeDef hadc1;
 
-/* Initializes the ADC object and MCU peripheral */
+/**
+ * @brief Initializes the ADC object 
+ *
+ * @param [IN] obj      ADC object
+ * @param [IN] adcInput ADC input pin
+ */
 void AdcMcuInit( Adc_t *obj, PinNames adcInput ){
     GpioMcuInit(&(obj->AdcInput), adcInput, PIN_ANALOGIC, PIN_PUSH_PULL, PIN_NO_PULL, 0);
 }
 
-/* Initializes the ADC internal parameters */
+/**
+ * @brief Initializes the ADC internal parameters
+ */
 void AdcMcuConfig( void )
 {
     __HAL_RCC_ADC1_CLK_ENABLE();
@@ -49,7 +67,13 @@ void AdcMcuConfig( void )
     
 }
 
-/* Reads the value of the given channel */
+/**
+ * @brief Reads the value of the given channel
+ *
+ * @param [IN] obj     ADC object
+ * @param [IN] channel ADC input channel
+ * @retval ADC value
+ */
 uint16_t AdcMcuReadChannel( Adc_t *obj, uint32_t channel ){
     uint32_t adcValue = 0;
     

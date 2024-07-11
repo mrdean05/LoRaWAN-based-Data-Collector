@@ -1,3 +1,12 @@
+/**
+ ******************************************************************************
+ * @file      rtc-board.c
+ * @author    Dean Prince Agbodjan
+ * @brief     Target board RTC implementation
+ *
+ ******************************************************************************
+ */
+/* includes */
 #include <stdio.h>
 #include <stdbool.h>
 
@@ -8,7 +17,8 @@
 #include "stm32f4xx_hal_rtc.h"
 #include "stm32f4xx_hal_rtc_ex.h"
 
-/* number of bits for the subseconds 
+/** 
+ * @brief number of bits for the subseconds 
  * This is based on "RTC_HandleStruct.Init.SynchPrediv = 255" which is 2^8 - 1 = 255 ((1 << 8) - 1)
  */
 #define N_PREDIV_S                                   8
@@ -25,17 +35,17 @@
 #define MINUTES_IN_1HOUR                             (( uint32_t )   60U )
 #define HOURS_IN_1DAY                                (( uint32_t )   24U )
 
-// Sub-second mask definition
+/* Sub-second mask definition */
 #define ALARM_SUBSECOND_MASK                        ( N_PREDIV_S << RTC_ALRMASSR_MASKSS_Pos )
 
-/*!
- * \brief Correction factors
+/**
+ * @brief Correction factors
  */
 #define  DAYS_IN_MONTH_CORRECTION_NORM               (( uint32_t )0x99AAA0 )
 #define  DAYS_IN_MONTH_CORRECTION_LEAP               (( uint32_t )0x445550 )
 
-/*!
- * \brief Calculates ceiling( X / N )
+/**
+ * @brief Calculates ceiling( X / N )
  */
 #define DIVC( X, N )                                 (( ( X ) + ( N ) -1 ) / ( N ) )
 
@@ -55,8 +65,11 @@ uint64_t RtcGetDateTime(RTC_DateTypeDef *date, RTC_TimeTypeDef *time);
 
 static bool RtcInitialized = false;
 
-/* Initialize the RTC */
-
+/**
+ * @brief Initializes the RTC timer
+ *
+ * @note The timer is based on the RTC
+ */
 void RtcInit( void ){
     
     #ifdef DEBUG_RTC
@@ -64,23 +77,8 @@ void RtcInit( void ){
     #endif
     
     if (RtcInitialized == false){
-    
-    // RCC_OscInitTypeDef RCC_OscStruct = {0};
-    // RCC_PeriphCLKInitTypeDef PeriphClkStruct;
 
     __HAL_RCC_RTC_ENABLE();
-
-    /* Initialize and configure the oscillator source for RTC */
-    // RCC_OscStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI;
-    // RCC_OscStruct.LSIState = RCC_LSI_ON;
-
-    // HAL_RCC_OscConfig(&RCC_OscStruct);
-
-    /* Selecting the LSI clock source for RTC*/
-    // PeriphClkStruct.PeriphClockSelection = RCC_PERIPHCLK_RTC;
-    // PeriphClkStruct.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
-
-    // HAL_RCCEx_PeriphCLKConfig(&PeriphClkStruct);
 
     /* Initialize the RTC */
     RTC_HandleStruct.Instance = RTC;
@@ -140,7 +138,11 @@ void RtcInit( void ){
     }
 }
 
-/* Return the minimum timeout value */
+/**
+ * @brief Returns the minimum timeout value
+ *
+ * @return minTimeout Minimum timeout value in in ticks
+ */
 uint32_t RtcGetMinimumTimeout( void ){
 
     #ifdef DEBUG_RTC
@@ -150,7 +152,12 @@ uint32_t RtcGetMinimumTimeout( void ){
     return WAKE_UP_TICK;
 }
 
-/* Converts time in ms to time in ticks */
+/**
+ * @brief converts time in ms to time in ticks
+ *
+ * @param[IN] milliseconds Time in milliseconds
+ * @return returns time in timer ticks
+ */
 uint32_t RtcMs2Tick( TimerTime_t milliseconds ){
     /* In this case we consider the ticks as subseconds.
      * 1 tick is equivalent to PREDIV_S (which is the subseconds) thereby we multiply PREDIV_S * millisecs and divide by a 1000
@@ -164,7 +171,12 @@ uint32_t RtcMs2Tick( TimerTime_t milliseconds ){
     //return ( uint32_t )( ( ( ( uint64_t )milliseconds ) * ( 1 << ( 10 - 3 ) ) ) / ( ( 1000000 / 1000 ) >> 3 ) );
 }
 
-/* Converts time in ticks to ms */
+/**
+ * @brief converts time in ticks to time in ms
+ *
+ * @param[IN] time in timer ticks
+ * @return returns time in milliseconds
+ */
 TimerTime_t RtcTick2Ms( uint32_t tick ){
    
    #ifdef DEBUG_RTC
@@ -177,7 +189,11 @@ TimerTime_t RtcTick2Ms( uint32_t tick ){
    return ((seconds * 1000) + ((tick * 1000) >> N_PREDIV_S));
 }
 
-/* Performs a milliseconds delay on the RTC by polling */
+/**
+ * @brief Performs a delay of milliseconds by polling RTC
+ *
+ * @param[IN] milliseconds Delay in ms
+ */
 void RtcDelayMs( TimerTime_t milliseconds ){
 
     #ifdef DEBUG_RTC
@@ -193,17 +209,24 @@ void RtcDelayMs( TimerTime_t milliseconds ){
     while ((RtcGetTimerValue() - timeNowTicks) < delayTimeTicks);
 }
 
+/**
+ * @brief Sets the alarm
+ *
+ * \note The alarm is set at now (read in this funtion) + timeout
+ *
+ * @param timeout [IN] Duration of the Timer ticks
+ */
 void RtcSetAlarm( uint32_t timeout ){
 
     #ifdef DEBUG_RTC
     printf("RTC RtcSetAlarm\r\n");
     #endif
-
     RtcStartAlarm( timeout );
-
 }
 
-/* Stops the alarm */
+/**
+ * @brief Stops the Alarm
+ */
 void RtcStopAlarm( void ){
     
     #ifdef DEBUG_RTC
@@ -218,11 +241,15 @@ void RtcStopAlarm( void ){
 }
 
     
-/* 
+/** 
+ * @brief Starts wake up alarm
+ *
+ * @note  Alarm in RtcTimerContext.Time + timeout
+ * @param [IN] timeout Timeout value in ticks
  * In the function below, we will first calculate the future time based on the current date and time and the timeout.
  * The alarm is set by adding the timeout (int ticks) to the current data and time. 
  * timeout which is in ticks is converted to the equivalence in subseconds, seconds, mintues, hours, days, week, month
-*/
+ */
 
 void RtcStartAlarm( uint32_t timeout ){
     
@@ -336,7 +363,11 @@ void RtcStartAlarm( uint32_t timeout ){
     if ( HAL_RTC_SetAlarm_IT(&RTC_HandleStruct, &RTC_AlarmStruct, RTC_FORMAT_BIN) != HAL_OK) printf("Error Setting up RTC Alarm \n");
 }
 
-/* Sets the RTC timer reference */
+/**
+ * @brief Sets the RTC timer reference
+ *
+ * @return value Timer reference value in ticks
+ */
 uint32_t RtcSetTimerContext( void ){
     
     #ifdef DEBUG_RTC
@@ -347,7 +378,11 @@ uint32_t RtcSetTimerContext( void ){
     return (uint32_t)TimeTicks;
 }
 
-/* RTC Timer value */
+/**
+ * @brief Sets the RTC timer reference
+ *
+ * @return value Timer reference value in ticks
+ */
 uint32_t RtcGetTimerContext( void ){
 
     #ifdef DEBUG_RTC
@@ -356,6 +391,11 @@ uint32_t RtcGetTimerContext( void ){
     return TimeTicks;
 }
 
+/**
+ * @brief Get the RTC timer elapsed time since the last Alarm was set
+ *
+ * @return RTC Elapsed time since the last alarm in ticks.
+ */
 uint32_t RtcGetTimerElapsedTime( void ){
     RTC_TimeTypeDef time;
     RTC_DateTypeDef date;
@@ -367,10 +407,12 @@ uint32_t RtcGetTimerElapsedTime( void ){
     return((uint32_t)(timeInTicks  - TimeTicks));    
 }
 
-/*
- * Gets the system time with the number of seconds elapsed since epoch
+/**
+ * @brief Gets the system time with the number of seconds elapsed since epoch
+ *
+ * @param [OUT] milliseconds Number of milliseconds elapsed since epoch
+ * @return seconds Number of seconds elapsed since epoch
  */
-
 uint32_t RtcGetCalendarTime( uint16_t *milliseconds ){
     RTC_TimeTypeDef time;
     RTC_DateTypeDef date;
@@ -384,7 +426,11 @@ uint32_t RtcGetCalendarTime( uint16_t *milliseconds ){
     return (uint32_t)(timeInTicks >> N_PREDIV_S);
 }
 
-/* Get the RTC time value with ticks */
+/**
+ * @brief Get the RTC timer value
+ *
+ * @return RTC Timer value
+ */
 uint32_t RtcGetTimerValue( void ){
     RTC_TimeTypeDef time;
     RTC_DateTypeDef date;
@@ -397,6 +443,12 @@ uint32_t RtcGetTimerValue( void ){
     return timeInTicks;
 }
 
+/**
+ * @brief Writes data0 and data1 to the RTC backup registers
+ *
+ * @param [IN] data0 1st Data to be written
+ * @param [IN] data1 2nd Data to be written
+ */
 void RtcBkupWrite( uint32_t data0, uint32_t data1){
     
     #ifdef DEBUG_RTC
@@ -407,12 +459,23 @@ void RtcBkupWrite( uint32_t data0, uint32_t data1){
     HAL_RTCEx_BKUPWrite(&RTC_HandleStruct, RTC_BKP_DR1, data1);
 }
 
+/**
+ * @brief Reads data0 and data1 from the RTC backup registers
+ *
+ * @param [OUT] data0 1st Data to be read
+ * @param [OUT] data1 2nd Data to be read
+ */
 void RtcBkupRead ( uint32_t* data0, uint32_t* data1 ){
     *data0 = HAL_RTCEx_BKUPRead(&RTC_HandleStruct, RTC_BKP_DR0);
     *data1 = HAL_RTCEx_BKUPRead(&RTC_HandleStruct, RTC_BKP_DR1);
 }
 
-/* Returns in ticks the present days and time since epoch */
+/**
+ * @brief Returns in ticks the present days and time since epoch
+ *
+ * @param [IN] date Pointer to RTC_DateStruct
+ * @param [IN] time Pointer to RTC_TimeStruct
+ */
 uint64_t RtcGetDateTime(RTC_DateTypeDef *date, RTC_TimeTypeDef *time){
 
     #ifdef DEBUG_RTC
@@ -453,6 +516,9 @@ uint64_t RtcGetDateTime(RTC_DateTypeDef *date, RTC_TimeTypeDef *time){
     return calendarValue;
 }
 
+/**
+ * @brief RTC Alarm Handler
+ */
 void RTC_Alarm_IRQHandler (void){
     #ifdef DEBUG_RTC
     printf("RTC RTC_Alarm_IRQHandler\r\n");

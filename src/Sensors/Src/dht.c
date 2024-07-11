@@ -1,3 +1,13 @@
+/**
+ ******************************************************************************
+ * @file      dht.c
+ * @author    Dean Prince Agbodjan
+ * @brief     DHT Sensor Driver implementation
+ *
+ ******************************************************************************
+ */
+
+/* Include */
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -10,14 +20,18 @@
 #include "dht.h"
 #include "board-config.h"
 
-TIM_HandleTypeDef htim2;
-
+/**
+ * DHT Sensor type
+ */
 typedef enum{
     DHT11,
     DHT12,
     DHT22
 }dht_types;
 
+/**
+ * DHT Sensor type definition
+ */
 typedef struct{
     Gpio_t *obj;
     TIM_HandleTypeDef *htim;
@@ -26,31 +40,62 @@ typedef struct{
     uint8_t humidity;
 } DHTTypedef_t;
 
+/* Variables */
 Gpio_t dht_GPIO_obj;
 DHTTypedef_t dht_DHT11;
+TIM_HandleTypeDef htim2;
 
+/* Private functions */
 static bool dhtInit( Gpio_t *obj, DHTTypedef_t *dht, dht_types dht_t,  PinNames pin );
 static void TIM_2_Init( TIM_HandleTypeDef *tim );
 static void TIM_2_DeInit( void );
 static bool setReadDHT( DHTTypedef_t *dht );
 
+/**
+ * @brief Initializes DHT sensor
+ *
+ * @return bool, return the status of initialization
+ */
 bool DHT_Init( void )
 {
     return dhtInit(&dht_GPIO_obj, &dht_DHT11, DHT11, DHT_11_PIN);
 }
 
+/**
+ * @brief Process and reads DHT sensor data
+ *
+ * @return bool, return the status after processing and reading
+ */
 bool DHT_ProcessValues( void ) {
     return setReadDHT( &dht_DHT11 );
 }
 
+/**
+ * @brief Get temperature value
+ *
+ * @return returns temp value
+ */
 uint8_t DHT_GetTempValue( void ){
     return dht_DHT11.temperature;
 }
 
+/**
+ * @brief Get humidity value
+ *
+ * @return returns hum value
+ */
 uint8_t DHT_GetHumValue( void ){
     return dht_DHT11.humidity;
 }
 
+/**
+ * @brief Initializes DHT sensor
+ * @param [IN] obj pointer to Gpio_t
+ * @param [IN] obj pointer to DHTTypedef_t
+ * @param [IN] dht_types (refer to dht.c)
+ * @param [IN] pin names (refer to board-config.h)
+ * @return bool, return the status of initialization
+ */
 static bool dhtInit( Gpio_t *obj, DHTTypedef_t *dht, dht_types dht_t, PinNames pin )
 {
     if ((obj == NULL) || (dht == NULL)) 
@@ -64,12 +109,17 @@ static bool dhtInit( Gpio_t *obj, DHTTypedef_t *dht, dht_types dht_t, PinNames p
     dht->dht_t = dht_t;
     dht->htim = &htim2;
 
+    /* Initialize and seup TIM 2 */
     TIM_2_Init(&htim2);
 
     return true;
 }
 
-/* Reading temp and hum values from DHT 11 involves 1. Initialization 2. Response 3. Data Transmission
+/**
+ * @brief read dht sensor values
+ *
+ * @return status of the read process
+ * Reading temp and hum values from DHT 11 involves 1. Initialization 2. Response 3. Data Transmission
  * 1. Initialization
  *  Pull the pin LOW for 18 ms. (set gpio output for this).
  * 
@@ -218,6 +268,10 @@ static bool setReadDHT( DHTTypedef_t *dht )
     return true;
 }
 
+/**
+ * @brief Initialize and configure TIM2 
+ *
+ */
 static void TIM_2_Init(TIM_HandleTypeDef *tim)
 {
     __HAL_RCC_TIM2_CLK_ENABLE();
@@ -252,8 +306,13 @@ static void TIM_2_Init(TIM_HandleTypeDef *tim)
     }
 }
 
+/**
+ * @brief DeInitialize TIM2 
+ *
+ */
 static void TIM_2_DeInit(void)
 {
-    __HAL_RCC_TIM9_CLK_DISABLE();
+    /* Disable TIM 2 clk */
+    __HAL_RCC_TIM2_CLK_DISABLE();
 }
 
