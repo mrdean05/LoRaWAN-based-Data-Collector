@@ -37,7 +37,7 @@ void Temt_Config( void ){
 
 /**
  * @brief Read TEMT600 data values
- * @return uint16_t sensor data
+ * @return sensor data
  */
 uint16_t Temt_ReadData( void ){
     return  (AdcMcuReadChannel(&adc_obj, 3));

@@ -10,6 +10,7 @@ This also includes an open source code (../src/Board/Src/lorawan.c, and ../src/
 
 
 The [Porting Guide](https://stackforce.github.io/LoRaMac-doc/LoRaMac-doc-v4.7.0/_p_o_r_t_i_n_g__g_u_i_d_e.html) used in the implementation of the lora node stack.
+```
 |
 |----lib
 |     |-----LoRaMac
@@ -33,6 +34,7 @@ The [Porting Guide](https://stackforce.github.io/LoRaMac-doc/LoRaMac-doc-v4.7.0/
         |-----Sensors
         |       |------Inc
         |       |------Src
+```
 
 
 | Src     | Description                                               |

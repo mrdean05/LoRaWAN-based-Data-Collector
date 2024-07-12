@@ -117,7 +117,7 @@ static bool dhtInit( Gpio_t *obj, DHTTypedef_t *dht, dht_types dht_t, PinNames p
 
 /**
  * @brief read dht sensor values
- *
+ * @param [IN] pointer to dht
  * @return status of the read process
  * Reading temp and hum values from DHT 11 involves 1. Initialization 2. Response 3. Data Transmission
  * 1. Initialization
@@ -270,7 +270,7 @@ static bool setReadDHT( DHTTypedef_t *dht )
 
 /**
  * @brief Initialize and configure TIM2 
- *
+ * @param [IN] pointer to TIM_HandleTypeDef
  */
 static void TIM_2_Init(TIM_HandleTypeDef *tim)
 {
